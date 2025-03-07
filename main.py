@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-path = "C:/A_Project_MS/DiLiGenT_Test/DiLiGenT_Test/pmsData/bearPNG/"
+path = "C:/A_Project_MS/1.photometricstereo/DiLiGenT_Test/DiLiGenT_Test/pmsData/bearPNG/"
 #001~096.png in filename.txt
 #x y z in light_directions.txt
 #A B C in light_intensities.txt

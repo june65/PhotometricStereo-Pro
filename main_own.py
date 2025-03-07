@@ -1,8 +1,8 @@
 import cv2
 import numpy as np
 
-path_ball = "C:/A_Project_MS/PA1_dataset/chromeball/"
-path = "C:/A_Project_MS/PA1_dataset/moai/"
+path_ball = "C:/A_Project_MS/1.photometricstereo/PA1_dataset/chromeball/"
+path = "C:/A_Project_MS/1.photometricstereo/PA1_dataset/moai/"
 #1~12.png in filename.txt
 #x y z in light_directions.txt
 #A B C in light_intensities.txt
@@ -50,6 +50,7 @@ for i in range(num_images):
 
 ############################################################################################################
 images = []
+
 for num in range(1,13):
     img = cv2.imread(path+str(num)+".JPG",cv2.IMREAD_GRAYSCALE)
     img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5) 
@@ -60,10 +61,15 @@ mask = cv2.resize(mask, (0, 0), fx=0.5, fy=0.5)
 mask = cv2.GaussianBlur(mask, (55, 55), 0)
 mask[mask >= 100] = 255
 mask[mask < 100] = 0
-
+'''
 cv2.imshow("Test Image", mask)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
+'''
+
+limit_images = images[:10]
+limit_light_directions = light_directions[:10]
+num_images = 10
 
 pixel_intencity = [[] for _ in range(num_images)]
 pixel_info = []
@@ -73,7 +79,7 @@ for i in range(num_images):
     for h in range(height):
         for w in range(width):
             if mask[h,w] == 255:
-                pixel_intencity[i].append(images[i][h,w])
+                pixel_intencity[i].append(limit_images[i][h,w])
                 if i == 0:
                     pixel_info.append([h,w])
                     num_pixels += 1
@@ -82,10 +88,10 @@ D = np.zeros((num_pixels, num_images), dtype=np.float32)
 
 for i in range(num_images):
     D[:, i] = pixel_intencity[i]
-light_directions_inv = np.transpose(np.linalg.pinv(light_directions))
+light_directions_inv = np.transpose(np.linalg.pinv(limit_light_directions))
 normal = D @ light_directions_inv
-norms = np.linalg.norm(normal, axis=1, keepdims=True)
-normalized_normal = normal / norms
+albedos = np.linalg.norm(normal, axis=1, keepdims=True)
+normalized_normal = normal / albedos
 
 normal_image = np.zeros((height, width,3), dtype=np.float32)
 for idx, (h, w) in enumerate(pixel_info):
@@ -94,8 +100,14 @@ for idx, (h, w) in enumerate(pixel_info):
     normal_image[h, w, 1] = (Ny + 1) * 0.5 * 255
     normal_image[h, w, 0] = (Nz + 1) * 0.5 * 255
 
-image = np.clip(normal_image, 0, 255).astype(np.uint8)
-
-cv2.imshow("Normal Map", image)
+normal_image = np.clip(normal_image, 0, 255).astype(np.uint8)
+'''
+cv2.imshow("Normal Map", normal_image)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
+'''
+
+np.save('light_directions.npy', light_directions)
+np.save('albedos.npy', albedos)
+np.save('normalized_normal.npy', normalized_normal)
+np.save('pixel_info.npy', pixel_info)
