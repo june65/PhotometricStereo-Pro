@@ -49,16 +49,17 @@ D = np.zeros((num_pixels, num_images), dtype=np.float32)
 for i in range(num_images):
     D[:, i] = pixel_intencity[i]
 
-normal = D @ light_directions
+light_directions_inv = np.transpose(np.linalg.pinv(light_directions))
+normal = D @ light_directions_inv
 norms = np.linalg.norm(normal, axis=1, keepdims=True)
 normalized_normal = normal / norms
 
 normal_image = np.zeros((height, width,3), dtype=np.float32)
 for idx, (h, w) in enumerate(pixel_info):
     Nx, Ny, Nz = normalized_normal[idx]
-    normal_image[h, w, 0] = (Nx + 1) * 0.5 * 255
+    normal_image[h, w, 2] = (Nx + 1) * 0.5 * 255
     normal_image[h, w, 1] = (Ny + 1) * 0.5 * 255
-    normal_image[h, w, 2] = (Nz + 1) * 0.5 * 255
+    normal_image[h, w, 0] = (Nz + 1) * 0.5 * 255
 
 image = np.clip(normal_image, 0, 255).astype(np.uint8)
 
