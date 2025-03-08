@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from function import lagrangian
 
 path_ball = "C:/A_Project_MS/1.photometricstereo/PA1_dataset/chromeball/"
 path = "C:/A_Project_MS/1.photometricstereo/PA1_dataset/moai/"
@@ -73,8 +74,8 @@ num_images = 10
 
 pixel_intencity = [[] for _ in range(num_images)]
 pixel_info = []
-num_pixels = 0
 
+num_pixels = 0
 for i in range(num_images):
     for h in range(height):
         for w in range(width):
@@ -89,6 +90,10 @@ D = np.zeros((num_pixels, num_images), dtype=np.float32)
 for i in range(num_images):
     D[:, i] = pixel_intencity[i]
 light_directions_inv = np.transpose(np.linalg.pinv(limit_light_directions))
+
+if True:
+    D, _, _ = lagrangian(D)
+
 normal = D @ light_directions_inv
 albedos = np.linalg.norm(normal, axis=1, keepdims=True)
 normalized_normal = normal / albedos
@@ -110,4 +115,5 @@ cv2.destroyAllWindows()
 np.save('light_directions.npy', light_directions)
 np.save('albedos.npy', albedos)
 np.save('normalized_normal.npy', normalized_normal)
+np.save('pixel_intencity.npy', pixel_intencity)
 np.save('pixel_info.npy', pixel_info)
